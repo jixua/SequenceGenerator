@@ -1,4 +1,4 @@
-# SequenceGenerator 接口文档
+# SequenceGenerator
 
 [SequenceGenerator](file:///Users/jixu/Project/Java/SequenceGenerator/src/main/java/com/yourorg/sequence/core/SequenceGenerator.java#26-84) 是高并发有序顺序号生成中间件的核心对外暴露接口。调用方只需注入此接口即可获取顺序号，无需关心底层 Redis / DB 的状态机流转与降级逻辑。
 
