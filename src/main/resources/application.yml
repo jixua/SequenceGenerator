@@ -1,0 +1,49 @@
+# ====================================================================
+# Sequence Generator Spring Boot Starter 示例配置
+# 将此文件放入使用方项目的 src/main/resources/application.yml
+# ====================================================================
+
+spring:
+  # ── Redis 配置 ──
+  redis:
+    host: 127.0.0.1
+    port: 6379
+    database: 0
+    timeout: 3000ms
+    lettuce:
+      pool:
+        max-active: 20
+        max-idle: 10
+        min-idle: 5
+
+  # ── 数据源配置 (MySQL) ──
+  datasource:
+    url: jdbc:mysql://127.0.0.1:3306/iSequence?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai
+    username: root
+    password: ql354210
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+# ── Redisson 配置 (单节点模式) ──
+# 如果使用 redisson-spring-boot-starter，可通过以下方式配置
+# 也可使用独立 redisson.yml 文件
+redisson:
+  single-server-config:
+    address: "redis://127.0.0.1:6379"
+    connection-minimum-idle-size: 5
+    connection-pool-size: 20
+    password: null
+
+# ── MyBatis-Plus 配置 ──
+mybatis-plus:
+  configuration:
+    map-underscore-to-camel-case: true
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl   # 开发环境开启 SQL 日志
+
+# ── 序列号生成器配置 ──
+sequence:
+  generator:
+    prefix: JX                     # 默认业务前缀
+    seq-length: 3                  # 序列号补齐长度 (001, 002, ...)
+    recovery-interval: 100         # 降级后每 100 次请求探活一次 Redis
+    expire-seconds: 172800         # Redis Key 过期时间 (48小时)
+    max-retry: 5                   # DB 乐观锁最大重试次数
