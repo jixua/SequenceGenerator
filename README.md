@@ -126,7 +126,7 @@ sequence:
 
 ---
 
-# 序列号生成器 (Sequence Generator) API 和配置
+# 序列号生成器 (Sequence Generator) 配置说明
 
 ## 1. 快速接入
 
