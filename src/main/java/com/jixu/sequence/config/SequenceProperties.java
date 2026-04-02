@@ -80,6 +80,8 @@ public class SequenceProperties {
     public static class KafkaConfig {
         /** Kafka Topic 名称（生产者向此 Topic 发布同步消息） */
         private String topic = "sequence-db-sync";
+        /** Kafka 废号 Topic 名称（生产者向此 Topic 发布废号记录消息） */
+        private String wasteTopic = "sequence-waste";
         /** Kafka 消费者组 ID */
         private String groupId = "sequence-sync-consumer";
     }

@@ -50,6 +50,16 @@ public class DbSequenceGenerator {
         syncStrategy.asyncSync(seqKey, dateStr, value);
     }
 
+    /**
+     * 将废号记录请求通过异步策略推送到 DB。
+     *
+     * @param seqKey   业务标识
+     * @param sequence 废号字符串
+     */
+    public void asyncSyncWasteToDb(String seqKey, String sequence) {
+        syncStrategy.asyncSyncWaste(seqKey, sequence);
+    }
+
     // ==================== 降级态：DB 乐观锁自增 ====================
 
     /**

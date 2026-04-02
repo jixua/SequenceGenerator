@@ -1,6 +1,7 @@
 package com.jixu.sequence.sync;
 
 import com.jixu.sequence.mapper.SysSequenceMapper;
+import com.jixu.sequence.mapper.SysSequenceWasteMapper;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.concurrent.*;
@@ -16,12 +17,15 @@ import java.util.concurrent.*;
 public class ThreadPoolDbSyncStrategy implements DbSyncStrategy {
 
     private final SysSequenceMapper sequenceMapper;
+    private final SysSequenceWasteMapper wasteMapper;
     private final ExecutorService executor;
 
     public ThreadPoolDbSyncStrategy(SysSequenceMapper sequenceMapper,
+                                    SysSequenceWasteMapper wasteMapper,
                                     int coreSize, int maxSize,
                                     int queueCapacity, String threadNamePrefix) {
         this.sequenceMapper = sequenceMapper;
+        this.wasteMapper = wasteMapper;
         this.executor = new ThreadPoolExecutor(
                 coreSize, maxSize,
                 60L, TimeUnit.SECONDS,
@@ -41,6 +45,18 @@ public class ThreadPoolDbSyncStrategy implements DbSyncStrategy {
     @Override
     public void asyncSync(String seqKey, String dateStr, long value) {
         executor.submit(() -> doSync(seqKey, dateStr, value));
+    }
+
+    @Override
+    public void asyncSyncWaste(String seqKey, String sequence) {
+        executor.submit(() -> {
+            try {
+                wasteMapper.insertWasteRecord(seqKey, sequence);
+                log.debug("线程池写入废号成功: seqKey={}, sequence={}", seqKey, sequence);
+            } catch (Exception e) {
+                log.warn("线程池写入废号失败: seqKey={}, sequence={}, error={}", seqKey, sequence, e.getMessage());
+            }
+        });
     }
 
     private void doSync(String seqKey, String dateStr, long value) {

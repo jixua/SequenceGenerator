@@ -2,6 +2,7 @@ package com.jixu.sequence.sync;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jixu.sequence.mapper.SysSequenceMapper;
+import com.jixu.sequence.mapper.SysSequenceWasteMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.springframework.kafka.annotation.KafkaListener;
@@ -19,10 +20,13 @@ import org.springframework.kafka.annotation.KafkaListener;
 public class KafkaDbSyncConsumer {
 
     private final SysSequenceMapper sequenceMapper;
+    private final SysSequenceWasteMapper wasteMapper;
     private final ObjectMapper objectMapper = new ObjectMapper();
 
-    public KafkaDbSyncConsumer(SysSequenceMapper sequenceMapper) {
+    public KafkaDbSyncConsumer(SysSequenceMapper sequenceMapper, 
+                               SysSequenceWasteMapper wasteMapper) {
         this.sequenceMapper = sequenceMapper;
+        this.wasteMapper = wasteMapper;
     }
 
     /**
@@ -46,6 +50,27 @@ public class KafkaDbSyncConsumer {
             log.error("Kafka 消费同步 DB 失败: record={}, error={}", record.value(), e.getMessage(), e);
             // 消费失败不 ack 抛出，交给 Kafka 重试机制处理
             throw new RuntimeException("序列号 DB 同步消费失败", e);
+        }
+    }
+
+    /**
+     * 消费废号记录消息，写入废号表。
+     */
+    @KafkaListener(
+            topics = "#{@sequenceProperties.kafka.wasteTopic}",
+            groupId = "#{@sequenceProperties.kafka.groupId}"
+    )
+    public void onWasteMessage(ConsumerRecord<String, String> record) {
+        try {
+            KafkaDbSyncStrategy.WasteMessage msg =
+                    objectMapper.readValue(record.value(), KafkaDbSyncStrategy.WasteMessage.class);
+
+            wasteMapper.insertWasteRecord(msg.getSeqKey(), msg.getSequence());
+            log.debug("Kafka 消费废号记录成功: seqKey={}, sequence={}",
+                    msg.getSeqKey(), msg.getSequence());
+        } catch (Exception e) {
+            log.error("Kafka 消费废号记录失败: record={}, error={}", record.value(), e.getMessage(), e);
+            throw new RuntimeException("序列号废号消费失败", e);
         }
     }
 }

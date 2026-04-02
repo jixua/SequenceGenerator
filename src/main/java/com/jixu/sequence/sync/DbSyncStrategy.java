@@ -24,4 +24,12 @@ public interface DbSyncStrategy {
      * @param value   当前已生成的最新序列号值
      */
     void asyncSync(String seqKey, String dateStr, long value);
+
+    /**
+     * 提交一次异步废号记录任务，将废弃的序列号写入废号记录表。
+     *
+     * @param seqKey   业务标识（如 "ORDER"）
+     * @param sequence 废弃的序列号
+     */
+    void asyncSyncWaste(String seqKey, String sequence);
 }

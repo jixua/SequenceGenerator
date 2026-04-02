@@ -104,6 +104,22 @@ public class StateMachineManager implements SequenceGenerator {
         return dispatch(seqKey, redisKey, PERSISTENT_DB_DATE, true);
     }
 
+    // ==================== 废号记录与补偿 ====================
+
+    @Override
+    public void reportWaste(String sequence) {
+        reportWaste(properties.getPrefix(), sequence);
+    }
+
+    @Override
+    public void reportWaste(String seqKey, String sequence) {
+        if (sequence == null || sequence.trim().isEmpty()) {
+            return;
+        }
+        log.info("接受到废号上报，开始异步记录: seqKey={}, sequence={}", seqKey, sequence);
+        dbGenerator.asyncSyncWasteToDb(seqKey, sequence);
+    }
+
     // ==================== 核心调度（状态机） ====================
 
     /**

@@ -197,6 +197,7 @@ sequence:
     # sync-mode = KAFKA 时的专有配置 (注意：使用此模式必须确保 pom.xml 引入了 spring-kafka)
     kafka:
       topic: sequence-db-sync       # 生产者投递消息、消费者监听的共同 Topic
+      waste-topic: sequence-waste   # 新增：记录被废弃未使用的序列号的专门 Topic
       group-id: sequence-sync-consumer # 消费者属组
 ```
 
@@ -213,6 +214,14 @@ CREATE TABLE IF NOT EXISTS `sys_sequence` (
     `update_time` DATETIME     DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '最后更新时间',
     PRIMARY KEY (`seq_key`, `curr_date`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='全局顺序号生成表';
+
+CREATE TABLE IF NOT EXISTS `sys_sequence_waste` (
+    `id`             BIGINT AUTO_INCREMENT PRIMARY KEY,
+    `seq_key`        VARCHAR(50)  NOT NULL COMMENT '业务标识，如：JX, ORDER',
+    `waste_sequence` VARCHAR(100) NOT NULL COMMENT '废弃的具体序列号，包含前缀和日期的完整 ID',
+    `create_time`    DATETIME     DEFAULT CURRENT_TIMESTAMP COMMENT '废号记录的时间',
+    INDEX `idx_seq_key` (`seq_key`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='废弃序列号存根表';
 ```
 ---
 # 架构设计文档

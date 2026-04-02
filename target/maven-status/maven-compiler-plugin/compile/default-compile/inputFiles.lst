@@ -1,0 +1,15 @@
+/Users/jixu/Project/Java/SequenceGenerator/src/main/java/com/jixu/sequence/example/SequenceExampleController.java
+/Users/jixu/Project/Java/SequenceGenerator/src/main/java/com/jixu/sequence/core/StateMachineManager.java
+/Users/jixu/Project/Java/SequenceGenerator/src/main/java/com/jixu/sequence/sync/KafkaDbSyncStrategy.java
+/Users/jixu/Project/Java/SequenceGenerator/src/main/java/com/jixu/sequence/core/SequenceState.java
+/Users/jixu/Project/Java/SequenceGenerator/src/main/java/com/jixu/sequence/entity/SysSequence.java
+/Users/jixu/Project/Java/SequenceGenerator/src/main/java/com/jixu/sequence/sync/KafkaDbSyncConsumer.java
+/Users/jixu/Project/Java/SequenceGenerator/src/main/java/com/jixu/sequence/mapper/SysSequenceMapper.java
+/Users/jixu/Project/Java/SequenceGenerator/src/main/java/com/jixu/sequence/sync/DbSyncStrategy.java
+/Users/jixu/Project/Java/SequenceGenerator/src/main/java/com/jixu/sequence/config/SequenceAutoConfiguration.java
+/Users/jixu/Project/Java/SequenceGenerator/src/main/java/com/jixu/sequence/annotation/EnableSequenceGenerator.java
+/Users/jixu/Project/Java/SequenceGenerator/src/main/java/com/jixu/sequence/sync/ThreadPoolDbSyncStrategy.java
+/Users/jixu/Project/Java/SequenceGenerator/src/main/java/com/jixu/sequence/core/SequenceGenerator.java
+/Users/jixu/Project/Java/SequenceGenerator/src/main/java/com/jixu/sequence/core/RedisSequenceGenerator.java
+/Users/jixu/Project/Java/SequenceGenerator/src/main/java/com/jixu/sequence/config/SequenceProperties.java
+/Users/jixu/Project/Java/SequenceGenerator/src/main/java/com/jixu/sequence/core/DbSequenceGenerator.java

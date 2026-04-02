@@ -5,6 +5,7 @@ import com.jixu.sequence.core.RedisSequenceGenerator;
 import com.jixu.sequence.core.SequenceGenerator;
 import com.jixu.sequence.core.StateMachineManager;
 import com.jixu.sequence.mapper.SysSequenceMapper;
+import com.jixu.sequence.mapper.SysSequenceWasteMapper;
 import com.jixu.sequence.sync.DbSyncStrategy;
 import com.jixu.sequence.sync.KafkaDbSyncConsumer;
 import com.jixu.sequence.sync.KafkaDbSyncStrategy;
@@ -59,12 +60,14 @@ public class SequenceAutoConfiguration {
             matchIfMissing = true   // 未配置 syncMode 时默认启用
     )
     public DbSyncStrategy threadPoolDbSyncStrategy(SysSequenceMapper sequenceMapper,
+                                                   SysSequenceWasteMapper wasteMapper,
                                                    SequenceProperties properties) {
         SequenceProperties.ThreadPoolConfig cfg = properties.getThreadPool();
         log.info("初始化 ThreadPoolDbSyncStrategy: coreSize={}, maxSize={}, queue={}",
                 cfg.getCoreSize(), cfg.getMaxSize(), cfg.getQueueCapacity());
         return new ThreadPoolDbSyncStrategy(
                 sequenceMapper,
+                wasteMapper,
                 cfg.getCoreSize(),
                 cfg.getMaxSize(),
                 cfg.getQueueCapacity(),
@@ -85,8 +88,9 @@ public class SequenceAutoConfiguration {
     public DbSyncStrategy kafkaDbSyncStrategy(KafkaTemplate<String, String> kafkaTemplate,
                                               SequenceProperties properties) {
         String topic = properties.getKafka().getTopic();
-        log.info("初始化 KafkaDbSyncStrategy: topic={}", topic);
-        return new KafkaDbSyncStrategy(kafkaTemplate, topic);
+        String wasteTopic = properties.getKafka().getWasteTopic();
+        log.info("初始化 KafkaDbSyncStrategy: topic={}, wasteTopic={}", topic, wasteTopic);
+        return new KafkaDbSyncStrategy(kafkaTemplate, topic, wasteTopic);
     }
 
     /**
@@ -98,9 +102,10 @@ public class SequenceAutoConfiguration {
             name = "sync-mode",
             havingValue = "KAFKA"
     )
-    public KafkaDbSyncConsumer kafkaDbSyncConsumer(SysSequenceMapper sequenceMapper) {
+    public KafkaDbSyncConsumer kafkaDbSyncConsumer(SysSequenceMapper sequenceMapper,
+                                                   SysSequenceWasteMapper wasteMapper) {
         log.info("初始化 KafkaDbSyncConsumer");
-        return new KafkaDbSyncConsumer(sequenceMapper);
+        return new KafkaDbSyncConsumer(sequenceMapper, wasteMapper);
     }
 
     // ==================== DB 生成器 ====================

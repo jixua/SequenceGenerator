@@ -21,12 +21,15 @@ public class KafkaDbSyncStrategy implements DbSyncStrategy {
 
     private final KafkaTemplate<String, String> kafkaTemplate;
     private final String topic;
+    private final String wasteTopic;
     private final ObjectMapper objectMapper = new ObjectMapper();
 
-    public KafkaDbSyncStrategy(KafkaTemplate<String, String> kafkaTemplate, String topic) {
+    public KafkaDbSyncStrategy(KafkaTemplate<String, String> kafkaTemplate, 
+                               String topic, String wasteTopic) {
         this.kafkaTemplate = kafkaTemplate;
         this.topic = topic;
-        log.info("KafkaDbSyncStrategy 初始化：topic={}", topic);
+        this.wasteTopic = wasteTopic;
+        log.info("KafkaDbSyncStrategy 初始化：topic={}, wasteTopic={}", topic, wasteTopic);
     }
 
     @Override
@@ -44,6 +47,21 @@ public class KafkaDbSyncStrategy implements DbSyncStrategy {
         }
     }
 
+    @Override
+    public void asyncSyncWaste(String seqKey, String sequence) {
+        try {
+            WasteMessage message = new WasteMessage(seqKey, sequence);
+            String json = objectMapper.writeValueAsString(message);
+            // 以 seqKey 作为 Partition Key，保证同一业务的消息有序
+            kafkaTemplate.send(wasteTopic, seqKey, json);
+            log.debug("Kafka 废号记录发送成功: topic={}, seqKey={}, sequence={}",
+                    wasteTopic, seqKey, sequence);
+        } catch (Exception e) {
+            log.warn("Kafka 废号记录发送失败: seqKey={}, sequence={}, error={}",
+                    seqKey, sequence, e.getMessage());
+        }
+    }
+
     /**
      * Kafka 消息体，序列化为 JSON 传输。
      */
@@ -54,5 +72,16 @@ public class KafkaDbSyncStrategy implements DbSyncStrategy {
         private String seqKey;
         private String dateStr;
         private long value;
+    }
+
+    /**
+     * Kafka 废号消息体。
+     */
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class WasteMessage {
+        private String seqKey;
+        private String sequence;
     }
 }

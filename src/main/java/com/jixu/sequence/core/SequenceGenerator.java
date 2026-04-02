@@ -80,4 +80,24 @@ public interface SequenceGenerator {
      * @return 原始序号数值
      */
     long nextRawValue();
+
+    // ==================== 废号记录与补偿 ====================
+
+    /**
+     * 报告废弃的序列号（使用指定的业务标识），执行异步落库记录。
+     * <p>
+     * 适用于业务在获取序列号后发生异常（如数据库回滚），不再使用该序列号时，
+     * 主动将此序列号存入废号表中，以保证数据链路可追溯。
+     *
+     * @param seqKey   业务标识（如 "ORDER"）
+     * @param sequence 废弃的序列号完整凭证
+     */
+    void reportWaste(String seqKey, String sequence);
+
+    /**
+     * 报告废弃的序列号（使用默认配置前缀）。
+     *
+     * @param sequence 废弃的序列号完整凭证
+     */
+    void reportWaste(String sequence);
 }
